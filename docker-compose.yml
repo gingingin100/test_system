@@ -1,0 +1,101 @@
+version: '3.8'
+
+networks:
+  internal_network:
+    driver: bridge
+
+services:
+
+  load_balancer:
+    build: ./load_balancer
+    ports:
+      - "8080:80"
+    depends_on:
+      - event_service
+      - auth_service
+      - database_service
+      - user_registration_service
+    networks:
+      - internal_network  
+    volumes:
+      - app_files:/var/www/html
+
+  auth_service:
+    build: ./auth_service
+    # ports:
+    #   - "8085:80"
+    depends_on:
+      - db
+      - redis
+    deploy:
+      replicas: 2
+    networks:
+      - internal_network
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    # volumes:
+    #   - app_files:/var/www/html
+
+  event_service:
+    build: ./event_service
+    depends_on:
+      - db
+    deploy:
+      replicas: 2
+    networks:
+      - internal_network
+
+  database_service:
+    build: ./database_service
+    depends_on:
+      - db
+    deploy:
+      replicas: 2
+    networks:
+      - internal_network
+
+  user_registration_service:
+    build: ./user_registration_service
+    depends_on:
+      - db
+    deploy:
+      replicas: 2
+    networks:
+      - internal_network
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_management
+    networks:
+      - internal_network
+
+  redis:
+    image: redis:latest
+    container_name: redis_cache
+    volumes:
+      - ./caching_service/redis.conf:/usr/local/etc/redis/redis.conf
+    command:  ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    networks:
+      - internal_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8084:80"
+    depends_on:
+      - db
+    networks:
+      - internal_network
+
+volumes:
+  app_files: 
