@@ -1,7 +1,15 @@
 <?php
-$servername = "34.56.190.88";
+$vm = true;
+if($vm){
+    $servername = "34.56.190.88";
+    $password = 'Z[FJO4C"=:}[X6A7';
+}else{
+    $servername = "db";
+    $password = "root" ;
+}
+
+
 $username = "root";
-$password = 'Z[FJO4C"=:}[X6A7';
 $dbname = "test_management";
 $conn = new mysqli($servername, $username, $password, $dbname);
 

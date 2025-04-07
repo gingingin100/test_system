@@ -87,9 +87,10 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
-      PMA_HOST: db
+      PMA_HOST: 34.56.190.88
+      PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_PASSWORD: Z[FJO4C"=:}[X6A7
     ports:
       - "8084:80"
     depends_on:
