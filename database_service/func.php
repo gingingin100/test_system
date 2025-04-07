@@ -58,6 +58,7 @@ function getUserEvents($user_id) {
 
 function addAttendee($api_key, $event_id) {
     global $conn;
+    echo "balls";
     // Step 1: Fetch user_id based on api_key
     $stmt = $conn->prepare("SELECT id FROM users WHERE api_key = ?");
     if (!$stmt) {

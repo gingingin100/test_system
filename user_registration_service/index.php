@@ -21,6 +21,7 @@ switch($serverName){
                     "id"=>$decodedData['received']['id'],
                     "api_key"=>$decodedData['received']['api_key']
                 ]]);
+                echo $response;
                 break;
         }
         break;
