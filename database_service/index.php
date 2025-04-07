@@ -60,7 +60,6 @@ switch ($serverName) {
             case 'POST':
                 $inputData = file_get_contents("php://input");
                 $decodedData = json_decode($inputData, true);
-                echo "HEY";
                 echo addAttendee($decodedData['received']['api_key'],$decodedData['received']['id']);
                 break;
         }
