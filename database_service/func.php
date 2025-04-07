@@ -1,7 +1,7 @@
 <?php
-$servername = "db";
+$servername = "34.56.190.88";
 $username = "root";
-$password = "root";
+$password = 'Z[FJO4C"=:}[X6A7';
 $dbname = "test_management";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
