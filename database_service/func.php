@@ -1,16 +1,10 @@
 <?php
-$vm = true;
-if($vm){
-    $servername = "34.56.190.88";
-    $password = 'Z[FJO4C"=:}[X6A7';
-}else{
-    $servername = "db";
-    $password = "root" ;
-}
 
+$servername = getenv('DB_HOST');
+$password = getenv('DB_PASS');
+$username = getenv('DB_USER');
+$dbname = getenv('DB_NAME');
 
-$username = "root";
-$dbname = "test_management";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {

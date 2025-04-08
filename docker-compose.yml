@@ -52,6 +52,11 @@ services:
       - db
     deploy:
       replicas: 2
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PASS: ${DB_PASS}
     networks:
       - internal_network
 
@@ -87,10 +92,10 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
-      PMA_HOST: 34.56.190.88
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: Z[FJO4C"=:}[X6A7
+      PMA_HOST: ${DB_HOST}
+      PMA_PORT: ${DB_PORT}
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASS}
     ports:
       - "8084:80"
     depends_on:
