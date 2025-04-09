@@ -11,8 +11,23 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$redis = new Redis();
+$redis->connect(getenv('REDIS_HOST'), getenv('REDIS_PORT'));
+
+
 function getUserEvents($user_id) {
-    global $conn;
+    global $conn, $redis;
+
+    // Check if the data is cached in Redis
+    $cacheKey = "user_events_{$user_id}";
+    $cachedData = $redis->get($cacheKey);
+
+    if ($cachedData) {
+        // Data is in Redis, return the cached data
+        return $cachedData;
+    }
+
+    // If not cached, query the database
     $stmt = $conn->prepare("SELECT e.id, e.event_name, e.start_date, e.end_date, e.location, e.price, e.created_by
                             FROM attendees a
                             INNER JOIN events e ON a.event_id = e.id
@@ -25,16 +40,13 @@ function getUserEvents($user_id) {
     $stmt->execute();
     $stmt->store_result();
 
-
     if ($stmt->num_rows === 0) {
         return json_encode(['message' => 'No events found for this user']);
     }
 
     $stmt->bind_result($id, $event_name, $start_date, $end_date, $location, $price, $created_by);
 
-
     $events = [];
-
     while ($stmt->fetch()) {
         $events[] = [
             'event_id' => $id,
@@ -46,6 +58,9 @@ function getUserEvents($user_id) {
             'created_by' => $created_by,
         ];
     }
+
+    // Cache the data in Redis for future use (set a timeout of 3600 seconds, i.e., 1 hour)
+    $redis->setex($cacheKey, 300, json_encode(['events' => $events]));
 
     return json_encode(['events' => $events]);
 }
@@ -89,8 +104,14 @@ function addAttendee($api_key, $event_id) {
 
 
 function retrieve($id = null) {
-    global $conn; // Use the database connection from db.php
-
+    global $conn , $redis; // Use the database connection from db.php
+    $cacheKey = $id ? "event_{$id}" : "all_events";
+    $cachedData = $redis->get($cacheKey);
+    if ($cachedData) {
+        // Data is in Redis, return the cached data
+        echo $cachedData;
+        return;
+    }
     if ($id === null) {
         // Retrieve all records from events table
         $sql = "SELECT * FROM events";
@@ -112,6 +133,8 @@ function retrieve($id = null) {
 
     $stmt->close();
     
+    $redis->setex($cacheKey, 300, json_encode($events));
+
     // Return the results as JSON
     if (!headers_sent() && empty($_SERVER['HTTP_CONTENT_TYPE'])) {
         header('Content-Type: application/json');
