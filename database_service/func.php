@@ -223,4 +223,110 @@ function createEvent($fields) {
         return json_encode(['error' => 'Failed to create event', 'details' => $stmt->error]);
     }
 }
-?>
+
+
+function registerUser($fields) {
+    global $conn; // Use the global database connection
+    echo json_encode($fields);
+    // Check if the necessary fields are present in the $fields array
+    if (!isset($fields['name'], $fields['email'], $fields['password'], $fields['api_key'])) {
+        return json_encode(['error' => 'Missing required fields']);
+    }
+
+    // Extract the values from the fields array
+    $name = $fields['name'];
+    $email = $fields['email'];
+    $password = $fields['password'];
+    $api_key = $fields['api_key'];
+
+    // Prepare the SQL query
+    $stmt = $conn->prepare("INSERT INTO users (name, email, password, api_key) VALUES (?, ?, ?, ?)");
+    if (!$stmt) {
+        return json_encode(['error' => 'Database error', 'details' => $conn->error]);
+    }
+
+    // Bind the parameters
+    $stmt->bind_param("ssss", $name, $email, $password, $api_key);
+
+    // Execute the query
+    if ($stmt->execute()) {
+        return json_encode(["message" => "User registered", "api_key" => $api_key]);
+    } else {
+        return json_encode(["error" => "User registration failed", "details" => $stmt->error]);
+    }
+}
+
+function loginUser($email, $enteredPassword) {
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT id, name, email, api_key, password, auth_flag FROM users WHERE email = ?");
+    if (!$stmt) {
+        return json_encode(['error' => 'Database error', 'details' => $conn->error]);
+    }
+
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    
+
+    $stmt->store_result();
+    if ($stmt->num_rows === 0) {
+        return json_encode(['error' => 'No user found with this email']);
+    }
+
+
+    $stmt->bind_result($id, $name, $email, $api_key, $hashedPassword, $authFlag);
+    $stmt->fetch();
+
+
+    if (password_verify($enteredPassword, $hashedPassword)) {
+        
+        $updateStmt = $conn->prepare("UPDATE users SET auth_flag = ? WHERE id = ?");
+        if (!$updateStmt) {
+            return json_encode(['error' => 'Database error while updating auth flag', 'details' => $conn->error]);
+        }
+        
+        $authFlag = 1;
+        $updateStmt->bind_param("ii", $authFlag, $id);
+
+        if ($updateStmt->execute()) {
+            return json_encode(['message' => 'Login successful', 'user_id' => $id, 'name' => $name, 'api_key' => $api_key]);
+        } else {
+            return json_encode(['error' => 'Error updating auth flag', 'details' => $updateStmt->error]);
+        }
+    } else {
+        return json_encode(['error' => 'Invalid password']);
+    }
+}
+
+function getUserByEmail($email) {
+    global $conn;
+
+    // Prepare the SQL query to fetch the user by email where auth_flag is true
+    $stmt = $conn->prepare("SELECT id, name, email, api_key, password, auth_flag FROM users WHERE email = ? AND auth_flag = 1");
+    if (!$stmt) {
+        return json_encode(['error' => 'Database error', 'details' => $conn->error]);
+    }
+
+    // Bind the parameter
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+
+    // Store the result and check if a matching user is found
+    $stmt->store_result();
+    if ($stmt->num_rows === 0) {
+        return json_encode(['error' => 'No user found with this email or the user is not authenticated']);
+    }
+
+    // Bind the result to variables
+    $stmt->bind_result($id, $name, $email, $api_key, $password, $auth_flag);
+    $stmt->fetch();
+
+    // Return user information in JSON format
+    return json_encode([
+        'id' => $id,
+        'name' => $name,
+        'email' => $email,
+        'api_key' => $api_key,
+        'auth_flag' => $auth_flag
+    ]);
+}

@@ -11,11 +11,19 @@ switch ($serverName) {
     case 'auth':
         switch ($requestMethod) {
             case 'GET':
-                
+                $inputData = file_get_contents("php://input");
+                $decodedData = json_decode($inputData, true);
+                echo getUserByEmail($decodedData['received']["email"]);
                 break;
             case 'POST':
-                
-                break;
+                $inputData = file_get_contents("php://input");
+                $decodedData = json_decode($inputData, true);
+                if(isset($decodedData['received']['api_key'])){
+                    echo registerUser($decodedData['received']);
+                }else{
+                    echo loginUser($decodedData['received']['email'],$decodedData['received']['password']);
+                }
+                break;                
         }
         break;
 

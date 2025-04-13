@@ -11,10 +11,14 @@ switch($serverName){
             case 'GET':
                 $params = $_GET;
                 $payload = ['recieved'=>$params];
-                $response = sendHttpRequest('GET', 'http://localhost:8080/db', $payload);
+                $response = sendHttpRequest('GET', 'http://database_service/db', $payload);
                 echo $response;
                 break;
             case 'POST':
+                $inputData = file_get_contents("php://input");
+                $decodedData = json_decode($inputData, true);
+                $response = sendHttpRequest('POST','http://database_service/db',['received'=> $decodedData['received']]); 
+                echo $response;                     
                 break;
         }
         break;
