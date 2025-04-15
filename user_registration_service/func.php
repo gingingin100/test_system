@@ -13,6 +13,7 @@ function sendHttpRequest($method, $url, $data = []) {
     $headers = [
         'Content-Type: application/json',
         'X-Server-Name: reg',
+        'X-Internal-Request: true'
     ];
 
     curl_setopt($ch, CURLOPT_URL, $url);

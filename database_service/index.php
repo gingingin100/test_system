@@ -18,7 +18,9 @@ switch ($serverName) {
             case 'POST':
                 $inputData = file_get_contents("php://input");
                 $decodedData = json_decode($inputData, true);
-                if(isset($decodedData['received']['api_key'])){
+                if(isset($decodedData['received']['logout'])==true){
+                    echo logoutUser($decodedData['received']['api_key']);
+                }else if(isset($decodedData['received']['api_key'])){
                     echo registerUser($decodedData['received']);
                 }else{
                     echo loginUser($decodedData['received']['email'],$decodedData['received']['password']);

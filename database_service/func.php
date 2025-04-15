@@ -330,3 +330,38 @@ function getUserByEmail($email) {
         'auth_flag' => $auth_flag
     ]);
 }
+
+function logoutUser($api_key) {
+    global $conn;
+
+    // Prepare a statement to find the user with the provided api_key
+    $stmt = $conn->prepare("SELECT id FROM users WHERE api_key = ?");
+    if (!$stmt) {
+        return json_encode(['error' => 'Database error', 'details' => $conn->error]);
+    }
+
+    $stmt->bind_param("s", $api_key);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows === 0) {
+        return json_encode(['error' => 'Invalid API key or user not found']);
+    }
+
+    $stmt->bind_result($id);
+    $stmt->fetch();
+    $stmt->close();
+
+    // Update the auth_flag to 0 (logout)
+    $updateStmt = $conn->prepare("UPDATE users SET auth_flag = 0 WHERE id = ?");
+    if (!$updateStmt) {
+        return json_encode(['error' => 'Database error while updating auth flag', 'details' => $conn->error]);
+    }
+
+    $updateStmt->bind_param("i", $id);
+    if ($updateStmt->execute()) {
+        return json_encode(['message' => 'Logout successful']);
+    } else {
+        return json_encode(['error' => 'Error updating auth flag', 'details' => $updateStmt->error]);
+    }
+}
