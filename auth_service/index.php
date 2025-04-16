@@ -10,7 +10,7 @@ switch($serverName){
         switch($requestMethod){
             case 'GET':
                 $params = $_GET;
-                $payload = ['recieved'=>$params];
+                $payload = ['received'=>$params];
                 $response = sendHttpRequest('GET', 'http://database_service/db', $payload);
                 echo $response;
                 break;
