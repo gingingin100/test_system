@@ -28,7 +28,7 @@ services:
       - db
       - redis
     deploy:
-      replicas: 2
+      replicas: 1
     networks:
       - internal_network
     environment:
@@ -42,7 +42,7 @@ services:
     depends_on:
       - db
     deploy:
-      replicas: 2
+      replicas: 1
     networks:
       - internal_network
 
@@ -51,7 +51,7 @@ services:
     depends_on:
       - db
     deploy:
-      replicas: 2
+      replicas: 1
     environment:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
@@ -67,7 +67,7 @@ services:
     depends_on:
       - db
     deploy:
-      replicas: 2
+      replicas: 1
     networks:
       - internal_network
 
