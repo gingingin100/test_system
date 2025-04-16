@@ -9,6 +9,7 @@ switch($serverName){
     case 'event':
         switch($requestMethod){
             case 'GET':
+                var_dump($_GET);
                 $params = $_GET;
                 if (isset($_GET['id'])) {
                     $id = isset($params['id']) ? $params['id'] : null;
