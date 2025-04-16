@@ -35,7 +35,6 @@ switch ($serverName) {
     case 'event':
         switch ($requestMethod) {
             case 'GET':
-                var_dump($_GET);
                 if (isset($_GET['id'])) {
                     retrieve($_GET['id']);
                 } else {
