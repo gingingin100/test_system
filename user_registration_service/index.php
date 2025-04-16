@@ -26,6 +26,6 @@ switch($serverName){
         }
         break;
     default:
-        echo json_encode(['error'=>'Unknown Server']);
+        echo json_encode(['error'=>'Unknown Server on reg']);
         break;    
 }
