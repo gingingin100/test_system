@@ -11,7 +11,7 @@ switch ($serverName) {
     case 'auth':
         switch ($requestMethod) {
             case 'GET':
-                echo json_decode($_GET);
+                echo $_GET['email'];
                 if (isset($_GET['email'])) {
                     $email = $_GET['email'];
                     echo getUserByEmail($email);
