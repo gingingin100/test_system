@@ -12,8 +12,8 @@ switch ($serverName) {
         switch ($requestMethod) {
             case 'GET':
                 var_dump($_GET);
-                if (isset($_GET['received']['email'])) {
-                    $email = $_GET['received']['email'];
+                if (isset($_GET['recieved']['email'])) {
+                    $email = $_GET['recieved']['email'];
                     echo getUserByEmail($email);
                 } else {
                     echo json_encode(['error' => 'ID parameter missing']);
