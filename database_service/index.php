@@ -11,13 +11,13 @@ switch ($serverName) {
     case 'auth':
         switch ($requestMethod) {
             case 'GET':
+                echo $_GET;
                 if (isset($_GET['email'])) {
                     $email = $_GET['email'];
                     echo getUserByEmail($email);
                 } else {
                     echo json_encode(['error' => 'ID parameter missing']);
                 }
-                echo getUserByEmail($decodedData['received']["email"]);
                 break;
             case 'POST':
                 $inputData = file_get_contents("php://input");
